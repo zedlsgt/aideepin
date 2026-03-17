@@ -384,13 +384,17 @@ public class Neo4jGraphStore implements GraphStore {
             Statement statement = match(sourceNode, targetNode, edge)
                     .with(sourceNode, targetNode, edge)
                     .where(sourceCondition.and(targetCondition))
-                    .set(edge.property("weight"), edge.property("text_segment_id"), edge.property("description"))
+                    .set(edge.property("label").to(Cypher.parameter("label")),
+                            edge.property("weight").to(Cypher.parameter("weight")),
+                            edge.property("text_segment_id").to(Cypher.parameter("text_segment_id")),
+                            edge.property("description").to(Cypher.parameter("description")))
                     .set(updateConditions)
                     .returning(sourceNode, targetNode, edge)
                     .build();
             String cypherQuery = Renderer.getDefaultRenderer().render(statement);
             log.info("updateEdge prepareSql:{}", cypherQuery);
             Map<String, Object> params = new HashMap<>();
+            params.put("label",newData.getLabel());
             params.put("weight", newData.getTextSegmentId());
             params.put("text_segment_id", newData.getTextSegmentId());
             params.put("description", newData.getDescription());
